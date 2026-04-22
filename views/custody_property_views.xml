@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Custody Property form view -->
+    <record model='ir.ui.view' id='custody_property_view_form'>
+        <field name="name">custody.property.form</field>
+        <field name="model">custody.property</field>
+        <field name="arch" type="xml">
+            <form string="Equipments">
+                <sheet>
+                    <field name="image" widget='image' class="oe_avatar"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="property_selection" widget="radio"/>
+                            <field name="product_id"
+                                   invisible=" property_selection != 'product'"/>
+                            <field name="brand_id"
+                                   options="{'no_open': True, 'no_create': True}"/>
+                            <field name="lot_id"
+                                   options="{'no_open': True, 'no_create': True}"
+                                   invisible=" property_selection != 'product'"/>
+                            <field name="asset_id"/>
+                            <field name="asset_model"/>
+                            <field name="serial_service_tag" readonly="1"/>
+                            <field name="company_id"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="purchase_date"/>
+                            <field name="vendor_name"/>
+                            <field name="price"/>
+                            <field name="received_by"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="inventory_details" string="Inventory Details">
+                            <group>
+                                <group>
+                                    <field name="purchase_details"/>
+                                    <field name="remark"/>
+                                </group>
+                                <group>
+                                    <field name="current_employee_id" readonly="1"/>
+                                    <field name="current_job_id" readonly="1"/>
+                                    <field name="current_department_id" readonly="1"/>
+                                    <field name="current_work_location_id" readonly="1"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="specification"/>
+                            </group>
+                        </page>
+                        <page name="desc" string="Description">
+                            <field name="desc"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <!-- Custody Property tree view -->
+    <record id="custody_property_view_tree" model="ir.ui.view">
+        <field name="name">custody.property.view.tree</field>
+        <field name="model">custody.property</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="asset_id" decoration-bf="1"/>
+                <field name="lot_id"/>
+                <field name="name"/>
+                <field name="brand_id"/>
+                <field name="asset_model"/>
+                <field name="serial_service_tag"/>
+                <field name="current_employee_id"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+    <!-- Custody Property action -->
+    <record id="custody_property_action" model="ir.actions.act_window">
+        <field name="name">Property</field>
+        <field name="res_model">custody.property</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Click to Create a New Record.
+            </p>
+        </field>
+    </record>
+    <!-- Custody Property menu -->
+    <menuitem action="custody_property_action" id="hr_property_menu"
+              parent="hr_custody.hr_custody_main_menu"
+              name="Property" sequence="5" groups="hr.group_hr_manager"/>
+</odoo>

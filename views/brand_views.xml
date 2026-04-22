@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="custody_brand_view_form" model="ir.ui.view">
+        <field name="name">custody.brand.form</field>
+        <field name="model">custody.brand</field>
+        <field name="arch" type="xml">
+            <form string="Brand">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="custody_brand_view_tree" model="ir.ui.view">
+        <field name="name">custody.brand.tree</field>
+        <field name="model">custody.brand</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="custody_brand_action" model="ir.actions.act_window">
+        <field name="name">Brand</field>
+        <field name="res_model">custody.brand</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to Create a New Record.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_configuration_root"
+              name="Configuration"
+              parent="hr_custody_main_menu"
+              sequence="40"/>
+
+    <menuitem id="custody_brand_menu"
+              name="Brand"
+              parent="hr_custody.menu_configuration_root"
+              action="custody_brand_action"
+              sequence="4"
+              groups="hr.group_hr_manager"/>
+</odoo>

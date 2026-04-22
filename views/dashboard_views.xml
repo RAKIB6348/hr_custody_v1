@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_custody_dashboard_form" model="ir.ui.view">
+        <field name="name">hr.custody.dashboard.form</field>
+        <field name="model">hr.custody.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Custody Dashboard" create="0" edit="0" delete="0">
+                <sheet class="w-100" style="max-width:none;">
+                    <field name="name" invisible="1"/>
+                    <style>
+                        .o_form_view .o_form_sheet_bg > .o_form_sheet {
+                            max-width: none !important;
+                            width: 100% !important;
+                        }
+                        .o_form_view .o_form_sheet_bg {
+                            min-height: auto;
+                        }
+                        .o_custody_dashboard {
+                            background:
+                                radial-gradient(circle at top left, rgba(222, 196, 159, 0.28), transparent 28%),
+                                linear-gradient(180deg, #f7f1e7 0%, #ffffff 38%);
+                            padding: 20px;
+                            min-height: calc(100vh - 180px);
+                            box-sizing: border-box;
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        .o_custody_dashboard h1 {
+                            margin: 0 0 18px 0;
+                            color: #1f4e5f;
+                            font-size: 30px;
+                            font-weight: 700;
+                            letter-spacing: -0.02em;
+                        }
+                        .o_custody_kpi_grid {
+                            display: grid;
+                            grid-template-columns: repeat(4, minmax(0, 1fr));
+                            gap: 18px;
+                            align-items: stretch;
+                            grid-auto-rows: 1fr;
+                            flex: 1 1 auto;
+                        }
+                        .o_custody_card {
+                            background: linear-gradient(180deg, #ffffff 0%, #fffaf4 100%);
+                            border: 1px solid #ead8c2;
+                            border-radius: 18px;
+                            padding: 18px 18px 16px;
+                            box-shadow: 0 12px 30px rgba(28, 41, 61, 0.08);
+                            position: relative;
+                            overflow: hidden;
+                            min-height: 210px;
+                            height: 100%;
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        .o_custody_card:before {
+                            content: "";
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 5px;
+                            background: var(--card-accent, #1f6f8b);
+                        }
+                        .o_custody_card_header {
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            margin-bottom: 18px;
+                        }
+                        .o_custody_card_title {
+                            color: #7a6a58;
+                            font-size: 13px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.06em;
+                            margin: 0;
+                        }
+                        .o_custody_card_icon {
+                            width: 42px;
+                            height: 42px;
+                            border-radius: 12px;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: color-mix(in srgb, var(--card-accent, #1f6f8b) 14%, white);
+                            color: var(--card-accent, #1f6f8b);
+                            font-size: 18px;
+                        }
+                        .o_custody_card_value {
+                            color: #12343b;
+                            font-size: 42px;
+                            font-weight: 700;
+                            line-height: 1.1;
+                            margin-bottom: 14px;
+                            flex: 1 1 auto;
+                        }
+                        .o_custody_card_action button {
+                            background: var(--card-accent, #1f6f8b);
+                            color: #fff;
+                            border: none;
+                            border-radius: 999px;
+                            padding: 9px 14px;
+                            font-weight: 600;
+                            box-shadow: none;
+                        }
+                        .o_card_assets { --card-accent: #1f6f8b; }
+                        .o_card_assigned { --card-accent: #2a7f62; }
+                        .o_card_available { --card-accent: #8f6c1e; }
+                        .o_card_pending { --card-accent: #cf7b19; }
+                        .o_card_overdue { --card-accent: #b44343; }
+                        .o_card_due { --card-accent: #6558f5; }
+                        .o_card_today { --card-accent: #0f766e; }
+                        .o_card_draft { --card-accent: #607d8b; }
+                        .o_card_approved { --card-accent: #198754; }
+                        .o_card_delivered { --card-accent: #0d6efd; }
+                        .o_card_returned { --card-accent: #6f42c1; }
+                        .o_card_rejected { --card-accent: #dc3545; }
+                        @media (max-width: 1200px) {
+                            .o_custody_kpi_grid {
+                                grid-template-columns: repeat(3, minmax(0, 1fr));
+                            }
+                        }
+                        @media (max-width: 992px) {
+                            .o_custody_kpi_grid {
+                                grid-template-columns: repeat(2, minmax(0, 1fr));
+                            }
+                        }
+                        @media (max-width: 768px) {
+                            .o_custody_kpi_grid {
+                                grid-template-columns: 1fr;
+                            }
+                        }
+                    </style>
+
+                    <div class="o_custody_dashboard">
+                        <h1 style="text-align:center;">Custody Dashboard</h1>
+
+                        <div class="o_custody_kpi_grid">
+
+                            <div class="o_custody_card o_card_today">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Today</div>
+                                    <span class="o_custody_card_icon fa fa-sun-o"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="today_count" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_today" string="Open Today"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_assets">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Total Assets</div>
+                                    <span class="o_custody_card_icon fa fa-cubes"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="total_assets" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_total_assets" string="Open Assets"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_assigned">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Assigned Assets</div>
+                                    <span class="o_custody_card_icon fa fa-briefcase"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="assigned_assets" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_assigned_assets" string="Open Assigned"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_available">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Available Assets</div>
+                                    <span class="o_custody_card_icon fa fa-check-square-o"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="available_assets" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_available_assets" string="Open Available"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_pending">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Pending Approval</div>
+                                    <span class="o_custody_card_icon fa fa-clock-o"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="pending_approval" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_pending_approval" string="Open Pending"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_overdue">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Overdue Returns</div>
+                                    <span class="o_custody_card_icon fa fa-exclamation-triangle"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="overdue_returns" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_overdue_returns" string="Open Overdue"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_due">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Due In 7 Days</div>
+                                    <span class="o_custody_card_icon fa fa-calendar"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="due_soon" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_due_soon" string="Open Due Soon"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_draft">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Draft</div>
+                                    <span class="o_custody_card_icon fa fa-file-text-o"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="draft_count" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_draft" string="Open Draft"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_approved">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Approved</div>
+                                    <span class="o_custody_card_icon fa fa-thumbs-up"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="approved_count" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_approved" string="Open Approved"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_delivered">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Delivered</div>
+                                    <span class="o_custody_card_icon fa fa-truck"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="delivered_count" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_delivered" string="Open Delivered"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_returned">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Returned</div>
+                                    <span class="o_custody_card_icon fa fa-undo"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="returned_count" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_returned" string="Open Returned"/>
+                                </div>
+                            </div>
+
+                            <div class="o_custody_card o_card_rejected">
+                                <div class="o_custody_card_header">
+                                    <div class="o_custody_card_title">Refused</div>
+                                    <span class="o_custody_card_icon fa fa-ban"/>
+                                </div>
+                                <div class="o_custody_card_value">
+                                    <field name="rejected_count" nolabel="1"/>
+                                </div>
+                                <div class="o_custody_card_action">
+                                    <button type="object" name="action_view_rejected" string="Open Refused"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_custody_dashboard_server" model="ir.actions.server">
+        <field name="name">Custody Dashboard</field>
+        <field name="model_id" ref="model_hr_custody_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">action = env['hr.custody.dashboard'].action_open_dashboard()</field>
+    </record>
+
+    <menuitem id="menu_hr_custody_dashboard"
+              name="Dashboard"
+              parent="hr_custody.hr_custody_main_menu"
+              action="action_hr_custody_dashboard_server"
+              sequence="0"
+              groups="hr.group_hr_manager"/>
+</odoo>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_fixed_asset_inventory_document">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .page {
+                                padding-top: 8px;
+                            }
+                            .o_standard_footer ul.list-inline,
+                            .o_boxed_footer ul.list-inline,
+                            .o_clean_footer ul.list-inline,
+                            .o_background_footer ul.list-inline {
+                                display: none !important;
+                            }
+                            .o_standard_footer .text-muted,
+                            .o_boxed_footer .text-muted,
+                            .o_clean_footer .text-muted,
+                            .o_background_footer .text-muted {
+                                display: none !important;
+                            }
+                            table.fixed-asset-report {
+                                width: 100%;
+                                border-collapse: collapse;
+                                table-layout: fixed;
+                                font-size: 18px;
+                                margin-bottom: 18px;
+                            }
+                            .fixed-asset-report th,
+                            .fixed-asset-report td {
+                                border: 1px solid #777;
+                                padding: 6px 8px;
+                                vertical-align: top;
+                                text-align: center;
+                                white-space: normal;
+                                word-break: break-word;
+                                overflow-wrap: anywhere;
+                            }
+                            .fixed-asset-report .title-row th {
+                                background: transparent;
+                                border: none;
+                                font-size: 16px;
+                                padding: 0 0 10px 0;
+                            }
+                            .fixed-asset-report .section-row th {
+                                background: #f2d8c8;
+                                text-align: center;
+                            }
+                            .fixed-asset-report .label {
+                                width: 30%;
+                                font-weight: 700;
+                                background: #faf2ec;
+                            }
+                            .fixed-asset-report .value {
+                                width: 70%;
+                            }
+                            .record-block {
+                                page-break-inside: avoid;
+                            }
+                            .fixed-asset-wrapper {
+                                margin-top: 0;
+                            }
+                        </style>
+                        <div class="fixed-asset-wrapper">
+                            <t t-foreach="docs" t-as="doc">
+                                <div class="record-block">
+                                <table class="fixed-asset-report">
+                                    <tbody>
+                                        <tr class="section-row">
+                                            <th colspan="4">
+                                                <span>Custody Reference: </span>
+                                                <span t-esc="doc.name or ''"/>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">SL</td>
+                                            <td class="value" colspan="3"><span t-esc="doc_index + 1"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">EmpID</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.employee_id.identification_id or doc.employee_id.barcode or doc.employee_id.id or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Emp Name</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.employee_id.name or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Designation</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.employee_id.job_id.name or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Department</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.employee_id.department_id.name or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Company</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.employee_id.company_id.name or doc.company_id.name or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Location</td>
+                                            <td class="value" colspan="3"><span t-esc="(doc.employee_id.custody_location_id.complete_name or '').split('/')[-1] if doc.employee_id.custody_location_id else ''"/></td>
+                                        </tr>
+                                        <tr class="section-row">
+                                            <th colspan="4">Asset Details</th>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Asset ID</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.asset_id or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Asset Name</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.name or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Brand</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.brand_id.name or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Model</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.asset_model or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Serial/Service Tag</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.lot_id.name or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Purchase Date</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.purchase_date or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Vendor Name</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.vendor_name or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Price</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.price or 0.0"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Received By</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.received_by or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Purchase Details</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.purchase_details or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Remark</td>
+                                            <td class="value" colspan="3"><span t-esc="doc.custody_property_id.remark or ''"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label">Specification</td>
+                                            <td colspan="3"><span t-esc="doc.custody_property_id.specification or ''"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+        <record id="action_report_fixed_asset_inventory_pdf" model="ir.actions.report">
+            <field name="name">Fixed Asset Inventory PDF</field>
+            <field name="model">hr.custody</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">hr_custody.report_fixed_asset_inventory_document</field>
+            <field name="report_file">hr_custody.report_fixed_asset_inventory_document</field>
+            <field name="print_report_name">'Fixed Asset Inventory - %s' % (object.name or 'Report')</field>
+            <field name="binding_model_id" ref="model_hr_custody"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="action_report_fixed_asset_inventory_xlsx" model="ir.actions.report">
+            <field name="name">Fixed Asset Inventory XLSX</field>
+            <field name="model">hr.custody</field>
+            <field name="report_type">xlsx</field>
+            <field name="report_name">hr_custody.fixed_asset_inventory_xlsx</field>
+            <field name="report_file">hr_custody.fixed_asset_inventory_xlsx</field>
+            <field name="binding_model_id" ref="model_hr_custody"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>
