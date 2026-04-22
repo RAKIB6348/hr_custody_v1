@@ -164,7 +164,7 @@
         </template>
 
         <record id="action_report_fixed_asset_inventory_pdf" model="ir.actions.report">
-            <field name="name">Fixed Asset Inventory PDF</field>
+            <field name="name">Report-PDF</field>
             <field name="model">hr.custody</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">hr_custody.report_fixed_asset_inventory_document</field>
@@ -175,7 +175,7 @@
         </record>
 
         <record id="action_report_fixed_asset_inventory_xlsx" model="ir.actions.report">
-            <field name="name">Fixed Asset Inventory XLSX</field>
+            <field name="name">Report-XLSX</field>
             <field name="model">hr.custody</field>
             <field name="report_type">xlsx</field>
             <field name="report_name">hr_custody.fixed_asset_inventory_xlsx</field>

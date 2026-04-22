@@ -57,11 +57,11 @@
                     <button string="Print PDF"
                             type="object"
                             name="action_print_fixed_asset_pdf"
-                            class="btn-secondary"/>
+                            class="oe_highlight"/>
                     <button string="Print XLSX"
                             type="object"
                             name="action_print_fixed_asset_xlsx"
-                            class="btn-secondary"/>
+                            class="oe_highlight"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,to_approve,approved,delivered,returned"/>
                 </header>
