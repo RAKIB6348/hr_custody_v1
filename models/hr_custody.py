@@ -46,6 +46,12 @@ class HrCustody(models.Model):
         else:
             self.is_read_only = False
 
+    @api.onchange('custody_property_id')
+    def _onchange_custody_property_id(self):
+        """Mirror the tracked lot/serial from the selected custody property."""
+        for record in self:
+            record._sync_lot_from_property()
+
     def mail_reminder(self):
         """ Use this function to product return reminder mail"""
         now = datetime.now() + timedelta(days=1)
@@ -111,9 +117,6 @@ class HrCustody(models.Model):
             if self.search_count(domain):
                 raise UserError(_("Custody is not available now"))
 
-
-
-
     def sent(self):
         """Move the current record to the 'to_approve' state."""
         self.state = 'to_approve'
@@ -174,8 +177,16 @@ class HrCustody(models.Model):
         """The function used to set the current
         custody record to the 'returned' state"""
         for record in self:
+            if record.state != 'delivered':
+                raise ValidationError(_('Only delivered custody records can be returned.'))
+            record._sync_lot_from_delivery()
             if not record.return_date:
                 raise ValidationError(_('Please set a Return Date before returning the custody.'))
+
+            product = record.custody_property_id.product_id
+            if product.tracking in ('serial', 'lot') and not record.lot_id:
+                raise ValidationError(_('Please set Lot/Serial Number before returning %s.') % product.display_name)
+
             record._create_stock_return_transfer()
             record.custody_property_id.is_in_custody = False
             record.state = 'returned'
@@ -186,8 +197,6 @@ class HrCustody(models.Model):
         date to ensure it is after the request date"""
         if self.return_date and self.return_date < self.date_request:
             raise ValidationError(_('Please Give Valid Return Date'))
-
-
 
     name = fields.Char(string='Code', copy=False,
                        help='A unique code assigned to this record.')
@@ -222,6 +231,13 @@ class HrCustody(models.Model):
         help='The property associated with this custody record'
     )
 
+    product_id = fields.Many2one(
+        'product.product',
+        string='Product',
+        related='custody_property_id.product_id',
+        store=True,
+        readonly=True,
+    )
 
     quantity = fields.Integer(string='Quantity', default=1,
                               help='Quantity of the selected property')
@@ -255,6 +271,13 @@ class HrCustody(models.Model):
                                   help='Indicates whether an email has '
                                        'been sent or not.')
 
+    lot_id = fields.Many2one(
+        'stock.lot',
+        string='Lot/Serial Number',
+        domain="[('product_id', '=', product_id)]",
+        help='Lot/Serial used for delivery and return.'
+    )
+
     @api.constrains('quantity')
     def _check_quantity(self):
         """Ensure the quantity is strictly positive."""
@@ -262,58 +285,91 @@ class HrCustody(models.Model):
             if record.quantity <= 0:
                 raise ValidationError(_('Quantity must be greater than zero.'))
 
+    def _get_property_lot(self):
+        """Return the tracked lot/serial tied to the selected custody property."""
+        self.ensure_one()
+        property_rec = self.custody_property_id
+        if not property_rec:
+            return self.env['stock.lot']
+        if property_rec.lot_id:
+            return property_rec.lot_id
+        if not self.product_id or self.product_id.tracking == 'none':
+            return self.env['stock.lot']
+        # Fall back to the latest lot/serial for the tracked product when the property
+        # itself has no explicit lot linked yet.
+        return self.env['stock.lot'].search([
+            ('product_id', '=', self.product_id.id),
+            '|', ('company_id', '=', self.company_id.id), ('company_id', '=', False),
+        ], order='id desc', limit=1)
+
+    def _sync_lot_from_property(self):
+        """Keep custody lot/serial aligned with the selected property."""
+        for record in self:
+            lot = record._get_property_lot()
+            record.lot_id = lot.id if lot else False
+
+    def _sync_lot_from_delivery(self):
+        """Backfill the tracked lot/serial from the delivery picking when missing."""
+        for record in self:
+            if record.lot_id or not record.stock_picking_id:
+                continue
+            move_line = record.stock_picking_id.move_ids.move_line_ids.filtered(
+                lambda line: line.product_id == record.product_id and line.lot_id
+            )[:1]
+            if move_line:
+                record.lot_id = move_line.lot_id.id
+
     def _create_stock_transfer(self):
         """Create an outgoing transfer for the custody product."""
         picking_model = self.env['stock.picking'].sudo()
         picking_type_model = self.env['stock.picking.type'].sudo()
         warehouse_model = self.env['stock.warehouse'].sudo()
+
         for record in self:
             if record.stock_picking_id:
                 continue
-            company = record.company_id
-            source = (company.custody_stock_source_location_id
-                      or getattr(company, 'kio_source_location_id', False))
-            destination = (
-                record.employee_id.custody_location_id  # NEW: use employee-specific custody location
-                or company.custody_stock_destination_location_id
-                or getattr(company, 'kio_employee_location_id', False)
-            )
+            record._sync_lot_from_property()
 
-            # Get the product
+            company = record.company_id
             product = record.custody_property_id.product_id
             if not product:
                 raise UserError(_("Please set a product on %s to move stock.") % record.custody_property_id.name)
 
-            # Source location: company stock source
             source = record.company_id.custody_stock_source_location_id \
-                    or getattr(record.company_id, 'kio_source_location_id', False)
-
-            # Destination location: now comes from employee field, not inventory settings
+                     or getattr(record.company_id, 'kio_source_location_id', False)
             destination = record.employee_id.custody_location_id
+
             if not source or not destination:
                 raise UserError(_("Please configure the custody source in Inventory settings "
-                                "and select an employee custody location."))
+                                  "and select an employee custody location."))
+
             if record.quantity <= 0:
                 raise ValidationError(_('Quantity must be greater than zero.'))
+
+            # ADDED: Serial/Lot validation
+            if product.tracking in ('serial', 'lot') and not record.lot_id:
+                raise UserError(_("Please set Lot/Serial Number for %s before delivery.") % product.display_name)
+
             warehouse = warehouse_model.search([('company_id', '=', company.id)], limit=1)
             picking_type = warehouse.out_type_id if warehouse else False
 
-            destination = record.employee_id.custody_location_id or destination
             if not picking_type:
                 picking_type = picking_type_model.search([
                     ('code', '=', 'outgoing'),
-                    '|', ('warehouse_id.company_id', '=', company.id),
-                         ('warehouse_id', '=', False),
-                    '|', ('company_id', '=', company.id),
-                         ('company_id', '=', False),
+                    '|', ('warehouse_id.company_id', '=', company.id), ('warehouse_id', '=', False),
+                    '|', ('company_id', '=', company.id), ('company_id', '=', False),
                 ], limit=1)
+
             if not picking_type:
-                raise UserError(_("No delivery operation type available for %s.")
-                                % company.name)
-            partner = (record.employee_id.user_id.partner_id
-                       or record.employee_id.work_contact_id
-                       or record.employee_id.address_home_id
-                       or self.env.user.partner_id)
+                raise UserError(_("No delivery operation type available for %s.") % company.name)
+
+            partner = (
+                    record.employee_id.user_id.partner_id
+                    or record.employee_id.work_contact_id
+                    or record.employee_id.address_home_id
+                    or self.env.user.partner_id
+            )
+
             picking_vals = {
                 'picking_type_id': picking_type.id,
                 'location_id': source.id,
@@ -331,16 +387,28 @@ class HrCustody(models.Model):
                     'company_id': company.id,
                 })],
             }
+
             picking = picking_model.create(picking_vals)
             picking.action_confirm()
             picking.action_assign()
-            picking.move_ids_without_package._set_quantity_done(record.quantity)
-            picking.with_context(skip_backorder=True,
-                                 skip_delivery_approval=True).button_validate()
+
+            move = picking.move_ids_without_package[:1]
+            move._set_quantity_done(record.quantity if product.tracking != 'serial' else 1)
+
+            # Let Odoo create the move lines, then attach the tracked lot/serial.
+            if product.tracking in ('serial', 'lot'):
+                move.move_line_ids[:1].write({'lot_id': record.lot_id.id})
+
+            picking.with_context(
+                skip_backorder=True,
+                skip_delivery_approval=True
+            ).button_validate()
+
             record.stock_picking_id = picking.id
+            record._sync_lot_from_delivery()
 
     def _create_stock_return_transfer(self):
-        """Create an incoming transfer when custody is returned."""
+        """Create the reverse stock transfer when an employee returns custody."""
         picking_model = self.env['stock.picking'].sudo()
         picking_type_model = self.env['stock.picking.type'].sudo()
         warehouse_model = self.env['stock.warehouse'].sudo()
@@ -348,29 +416,27 @@ class HrCustody(models.Model):
         for record in self:
             if record.stock_return_picking_id:
                 continue
-            if not record.stock_picking_id:
-                continue
+            record._sync_lot_from_property()
 
             company = record.company_id
-
-            # ✅ CORRECT FLOW
-            source = record.employee_id.custody_location_id   # FROM employee
-            destination = company.custody_stock_source_location_id  # TO company
-
-            # ✅ Clean validation
-            if not source:
-                raise UserError(_("Please set a Custody Location on the Employee."))
-
-            if not destination:
-                raise UserError(_("Please configure the custody source location in Inventory settings."))
-
             product = record.custody_property_id.product_id
             if not product:
-                raise UserError(_("Please set a product on %s to move stock.")
-                                % record.custody_property_id.name)
+                raise UserError(_("Please set a product on %s to move stock.") % record.custody_property_id.name)
+
+            # Reverse the original custody flow: employee custody location back to company stock.
+            source = record.employee_id.custody_location_id
+            destination = record.company_id.custody_stock_source_location_id \
+                          or getattr(record.company_id, 'kio_source_location_id', False)
+
+            if not source or not destination:
+                raise UserError(_("Please configure the custody source in Inventory settings "
+                                  "and select an employee custody location."))
 
             if record.quantity <= 0:
                 raise ValidationError(_('Quantity must be greater than zero.'))
+
+            if product.tracking in ('serial', 'lot') and not record.lot_id:
+                raise UserError(_("Please set Lot/Serial Number for %s before returning.") % product.display_name)
 
             warehouse = warehouse_model.search([('company_id', '=', company.id)], limit=1)
             picking_type = warehouse.in_type_id if warehouse else False
@@ -383,17 +449,24 @@ class HrCustody(models.Model):
                 ], limit=1)
 
             if not picking_type:
-                raise UserError(_("No receipt operation type available for %s.") % company.name)
+                raise UserError(_("No return operation type available for %s.") % company.name)
+
+            partner = (
+                    record.employee_id.user_id.partner_id
+                    or record.employee_id.work_contact_id
+                    or record.employee_id.address_home_id
+                    or self.env.user.partner_id
+            )
 
             picking_vals = {
                 'picking_type_id': picking_type.id,
                 'location_id': source.id,
                 'location_dest_id': destination.id,
-                'origin': _('%s Return') % record.name,
+                'origin': record.name,
                 'company_id': company.id,
-                # ❌ REMOVE partner_id (multi-company issue)
+                'partner_id': partner.id if partner else False,
                 'move_ids_without_package': [(0, 0, {
-                    'name': product.display_name,
+                    'name': _('%s Return') % product.display_name,
                     'product_id': product.id,
                     'product_uom_qty': record.quantity,
                     'product_uom': product.uom_id.id,
@@ -406,11 +479,21 @@ class HrCustody(models.Model):
             picking = picking_model.create(picking_vals)
             picking.action_confirm()
             picking.action_assign()
-            picking.move_ids_without_package._set_quantity_done(record.quantity)
-            picking.with_context(skip_backorder=True,
-                                skip_delivery_approval=True).button_validate()
+
+            move = picking.move_ids_without_package[:1]
+            move._set_quantity_done(record.quantity if product.tracking != 'serial' else 1)
+
+            # Reuse the same lot/serial on the return move so stock remains traceable.
+            if product.tracking in ('serial', 'lot'):
+                move.move_line_ids[:1].write({'lot_id': record.lot_id.id})
+
+            picking.with_context(
+                skip_backorder=True,
+                skip_delivery_approval=True
+            ).button_validate()
 
             record.stock_return_picking_id = picking.id
+
     @api.constrains('employee_id')
     def _check_employee_location(self):
         for record in self:

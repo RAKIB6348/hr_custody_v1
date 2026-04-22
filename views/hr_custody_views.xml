@@ -41,7 +41,7 @@
                     <button string="Return" type="object"
                             name="set_to_return"
                             groups="hr.group_hr_manager"
-                            invisible="state not in ['approved','delivered']"/>
+                            invisible="state != 'delivered'"/>
                     <button string="Send Mail" type="object"
                             name="send_mail" groups="hr.group_hr_manager"
                             invisible="is_mail_send == False or state not in ['approved','delivered']"/>
@@ -80,6 +80,10 @@
                                    readonly="state != 'draft'"/>
                             <field name="quantity"
                                    readonly="state != 'draft'"/>
+
+                            <field name="lot_id"
+                                   readonly="1"/>
+                            <field name="product_id" invisible="1"/>
                             <field name="is_renew_return_date"
                                    invisible="1"/>
                             <field name="is_renew_reject" invisible="1"/>
