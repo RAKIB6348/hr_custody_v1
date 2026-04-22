@@ -130,6 +130,15 @@ class CustodyProperty(models.Model):
         compute='_compute_current_custody',
         help='Work location of the current employee.')
 
+    def _get_asset_display_name(self):
+        """Build the same display value for Property Name and Asset ID."""
+        self.ensure_one()
+        if self.product_id and self.lot_id:
+            return f"ASSET-{self.product_id.display_name.upper()}-{self.lot_id.name.upper()}"
+        elif self.product_id:
+            return f"ASSET-{self.product_id.display_name}"
+        return False
+
     @api.onchange('product_id')
     def onchange_product(self):
         """The function is used to
@@ -137,7 +146,6 @@ class CustodyProperty(models.Model):
             fill name field"""
         if self.product_id:
             product_tmpl = self.product_id.product_tmpl_id
-            self.name = self.product_id.name
             self.brand_id = product_tmpl.brand_id
             self.asset_model = product_tmpl.model_name
             self.specification = product_tmpl.specification
@@ -172,13 +180,24 @@ class CustodyProperty(models.Model):
                 '|', ('company_id', '=', self.company_id.id), ('company_id', '=', False),
             ], order='id desc', limit=1)
             self.lot_id = lot
+
+            display_value = self._get_asset_display_name()
+            self.name = display_value or False
+            self.asset_id = display_value or False
+            
         elif self.lot_id and self.lot_id.product_id != self.product_id:
             self.lot_id = False
+            self.name = False
+            self.asset_id = False
 
     @api.onchange('lot_id')
     def _onchange_lot_id(self):
-        """Mirror the selected lot/serial into the serial/service tag."""
+        """Mirror the selected lot/serial into the serial/service tag
+           and sync Property Name + Asset ID."""
         self.serial_service_tag = self.lot_id.name or False
+        display_value = self._get_asset_display_name()
+        self.name = display_value or False
+        self.asset_id = display_value or False
 
     @api.depends('lot_id', 'lot_id.name')
     def _compute_serial_service_tag(self):
@@ -201,3 +220,22 @@ class CustodyProperty(models.Model):
             record.current_department_id = employee.department_id
             record.current_job_id = employee.job_id
             record.current_work_location_id = employee.work_location_id
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for rec in records:
+            value = rec._get_asset_display_name()
+            if value:
+                rec.name = value
+                rec.asset_id = value
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'product_id' in vals or 'lot_id' in vals:
+            for rec in self:
+                value = rec._get_asset_display_name()
+                rec.name = value or False
+                rec.asset_id = value or False
+        return res
