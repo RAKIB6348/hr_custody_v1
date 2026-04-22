@@ -76,7 +76,7 @@
                                    readonly="is_read_only == False"/>
                             <field name="custody_property_id"
                                    options="{'no_open':True,'no_create':True}"
-                                   domain="[('company_id','child_of',[company_id])]"
+                                   domain="[('company_id','child_of',[company_id]), ('is_in_custody','=',False)]"
                                    readonly="state != 'draft'"/>
                             <field name="quantity"
                                    readonly="state != 'draft'"/>
@@ -186,7 +186,7 @@
             </p>
         </field>
     </record>
-    
+
     <record id="hr_custody_form_view" model="ir.ui.view">
         <field name="name">hr.custody.form.alias</field>
         <field name="model">hr.custody</field>
@@ -207,7 +207,6 @@
     <menuitem action="hr_custody_action" id="hr_custody_request_menu"
               parent="hr_custody.hr_custody_main_menu"
               name="Custody Request" sequence="1"/>
-
 
 
 </odoo>

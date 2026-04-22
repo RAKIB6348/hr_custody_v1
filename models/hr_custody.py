@@ -105,11 +105,14 @@ class HrCustody(models.Model):
         for record in self:
             domain = [
                 ('custody_property_id', '=', record.custody_property_id.id),
-                ('state', '=', 'approved'),
+                ('state', 'in', ['approved', 'delivered']),
                 ('id', '!=', record.id),
             ]
             if self.search_count(domain):
                 raise UserError(_("Custody is not available now"))
+
+
+
 
     def sent(self):
         """Move the current record to the 'to_approve' state."""
@@ -164,6 +167,7 @@ class HrCustody(models.Model):
         custody record to the 'delivered' state"""
         self._ensure_property_available()
         self._create_stock_transfer()
+        self.custody_property_id.is_in_custody = True
         self.state = 'delivered'
 
     def set_to_return(self):
@@ -173,6 +177,7 @@ class HrCustody(models.Model):
             if not record.return_date:
                 raise ValidationError(_('Please set a Return Date before returning the custody.'))
             record._create_stock_return_transfer()
+            record.custody_property_id.is_in_custody = False
             record.state = 'returned'
 
     @api.constrains('return_date')
@@ -181,6 +186,8 @@ class HrCustody(models.Model):
         date to ensure it is after the request date"""
         if self.return_date and self.return_date < self.date_request:
             raise ValidationError(_('Please Give Valid Return Date'))
+
+
 
     name = fields.Char(string='Code', copy=False,
                        help='A unique code assigned to this record.')
@@ -207,11 +214,15 @@ class HrCustody(models.Model):
     purpose = fields.Char(string='Reason', track_visibility='always',
                           required=True,
                           help='The reason or purpose of the custody')
-    custody_property_id = fields.Many2one('custody.property',
-                                          string='Property', required=True,
-                                          help='The property associated '
-                                               'with this custody record'
-                                          )
+    custody_property_id = fields.Many2one(
+        'custody.property',
+        string='Property',
+        required=True,
+        domain="[('is_in_custody', '=', False)]",
+        help='The property associated with this custody record'
+    )
+
+
     quantity = fields.Integer(string='Quantity', default=1,
                               help='Quantity of the selected property')
     stock_picking_id = fields.Many2one(

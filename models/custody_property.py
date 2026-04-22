@@ -130,6 +130,13 @@ class CustodyProperty(models.Model):
         compute='_compute_current_custody',
         help='Work location of the current employee.')
 
+    is_in_custody = fields.Boolean(
+        string='In Custody',
+        default=False
+    )
+
+
+
     def _get_asset_display_name(self):
         """Build the same display value for Property Name and Asset ID."""
         self.ensure_one()
