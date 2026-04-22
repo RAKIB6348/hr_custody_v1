@@ -35,10 +35,15 @@ class PropertyReturnDate(models.TransientModel):
     @api.constrains('returned_date')
     def validate_return_date(self):
         """The function used to renewal date validation"""
-        custody_obj = self.env['hr.custody'].search(
-            [('id', '=', self._context.get('custody_id'))])
-        if self.returned_date <= custody_obj.date_request:
-            raise ValidationError('Please Give Valid Renewal Date')
+        for wizard in self:
+            custody_id = wizard.env.context.get('custody_id')
+            if not custody_id or not wizard.returned_date:
+                continue
+            custody_obj = wizard.env['hr.custody'].browse(custody_id)
+            if not custody_obj.exists() or not custody_obj.date_request:
+                continue
+            if wizard.returned_date <= custody_obj.date_request:
+                raise ValidationError('Please Give Valid Renewal Date')
 
     def proceed(self):
         """The function used to proceed
