@@ -30,13 +30,13 @@
                     </h1>
                     <group>
                         <group>
-                            <field name="employee_from_id"/>
+                            <field name="employee_from_id" readonly="1"/>
                             <field name="department_from_id" readonly="1"/>
                             <field name="company_from_id" readonly="1"/>
                             <field name="source_location_id" readonly="1"/>
                             <field name="custody_property_id" readonly="1"/>
                             <field name="lot_id" readonly="1"/>
-                            <field name="quantity"/>
+                            <field name="quantity" readonly="1"/>
                         </group>
                         <group>
                             <field name="employee_to_id"/>

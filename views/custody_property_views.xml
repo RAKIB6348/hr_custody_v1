@@ -72,6 +72,7 @@
                                     <field name="remark"/>
                                 </group>
                                 <group>
+                                    <field name="current_request_quantity" readonly="1"/>
                                     <field name="current_employee_id" readonly="1"/>
                                     <field name="current_job_id" readonly="1"/>
                                     <field name="current_department_id" readonly="1"/>

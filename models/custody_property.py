@@ -135,6 +135,10 @@ class CustodyProperty(models.Model):
         string='Location',
         compute='_compute_current_custody',
         help='Work location of the current employee.')
+    current_request_quantity = fields.Integer(
+        string='Requested Quantity',
+        compute='_compute_current_custody',
+        help='Quantity from the latest custody request for this property.')
 
     is_in_custody = fields.Boolean(
         string='In Custody',
@@ -158,13 +162,18 @@ class CustodyProperty(models.Model):
         ],
         string="Custody Status",
         compute="_compute_custody_state",
-        store=True
     )
 
-    @api.depends('current_custody_id.state')
+    def _get_latest_custody(self):
+        self.ensure_one()
+        return self.env['hr.custody'].search([
+            ('custody_property_id', '=', self.id),
+            ('state', '!=', 'rejected'),
+        ], order='date_request desc, id desc', limit=1)
+
     def _compute_custody_state(self):
         for rec in self:
-            rec.custody_state = rec.current_custody_id.state or 'draft'
+            rec.custody_state = rec._get_latest_custody().state or 'draft'
 
     def _compute_history_count(self):
         for rec in self:
@@ -248,13 +257,9 @@ class CustodyProperty(models.Model):
             record.serial_service_tag = record.lot_id.name or False
 
     def _compute_current_custody(self):
-        """Use the latest approved or delivered custody as the active holder."""
-        custody_model = self.env['hr.custody']
+        """Expose the latest custody record and its employee details."""
         for record in self:
-            custody = custody_model.search([
-                ('custody_property_id', '=', record.id),
-                ('state', 'in', ['approved', 'delivered']),
-            ], order='date_request desc, id desc', limit=1)
+            custody = record._get_latest_custody()
             employee = custody.employee_id
             record.current_custody_id = custody
             record.current_employee_id = employee
@@ -262,6 +267,7 @@ class CustodyProperty(models.Model):
             record.current_department_id = employee.department_id
             record.current_job_id = employee.job_id
             record.current_work_location_id = employee.work_location_id
+            record.current_request_quantity = custody.quantity or 0
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -296,6 +302,7 @@ class CustodyProperty(models.Model):
                 'default_product_id': self.product_id.id,
                 'default_lot_id': self.lot_id.id,
                 'default_custody_property_id': self.id,
+                'default_quantity': self.current_request_quantity,
             }
         }
 
