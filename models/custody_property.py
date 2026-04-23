@@ -142,8 +142,6 @@ class CustodyProperty(models.Model):
         tracking=True
     )
 
-
-
     def _get_asset_display_name(self):
         """Build the same display value for Property Name and Asset ID."""
         self.ensure_one()
@@ -198,7 +196,7 @@ class CustodyProperty(models.Model):
             display_value = self._get_asset_display_name()
             self.name = display_value or False
             self.asset_id = display_value or False
-            
+
         elif self.lot_id and self.lot_id.product_id != self.product_id:
             self.lot_id = False
             self.name = False
@@ -253,3 +251,19 @@ class CustodyProperty(models.Model):
                 rec.name = value or False
                 rec.asset_id = value or False
         return res
+
+    def action_custody_transfer(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Custody Transfer',
+            'res_model': 'hr.custody.transfer',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {
+                'default_employee_from_id': self.current_employee_id.id,
+                'default_product_id': self.product_id.id,
+                'default_lot_id': self.lot_id.id,
+            }
+        }

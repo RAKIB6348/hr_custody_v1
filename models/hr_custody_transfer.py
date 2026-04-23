@@ -19,6 +19,15 @@ class HrCustodyTransfer(models.Model):
         string='Employee From',
         required=True,
     )
+
+    department_from_id = fields.Many2one(
+        'hr.department',
+        string='From Department',
+        related='employee_from_id.department_id',
+        store=True,
+        readonly=True,
+    )
+
     company_from_id = fields.Many2one(
         'res.company',
         string='Company From',
@@ -38,6 +47,15 @@ class HrCustodyTransfer(models.Model):
         string='Employee To',
         required=True,
     )
+
+    department_to_id = fields.Many2one(
+        'hr.department',
+        string='To Department',
+        related='employee_to_id.department_id',
+        store=True,
+        readonly=True,
+    )
+
     company_to_id = fields.Many2one(
         'res.company',
         string='Company To',
@@ -56,6 +74,17 @@ class HrCustodyTransfer(models.Model):
         string='Transfer Date',
         required=True,
         default=fields.Date.context_today,
+    )
+
+    product_id = fields.Many2one(
+        'product.product',
+        string='Product',
+    )
+
+    lot_id = fields.Many2one(
+        'stock.lot',
+        string='Lot/Serial Number',
+        domain="[('product_id', '=', product_id)]",
     )
 
     @api.model_create_multi
