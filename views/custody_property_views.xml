@@ -21,13 +21,15 @@
                                 class="oe_stat_button"
                                 icon="fa-history">
 
-                            <span class="o_stat_value">
-                                <field name="history_count" widget="statinfo" string="History"/>
-                            </span>
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="history_count"/>
+                                </span>
+                                <span class="o_stat_text">
+                                    History
+                                </span>
+                            </div>
 
-                            <span class="o_stat_text">
-                                History
-                            </span>
                         </button>
                     </div>
 
@@ -105,6 +107,11 @@
                 <field name="serial_service_tag"/>
                 <field name="current_employee_id"/>
                 <field name="company_id"/>
+                <field name="custody_state" widget="badge"
+                       decoration-info="custody_state == 'draft'"
+                       decoration-warning="custody_state == 'to_approve'"
+                       decoration-success="custody_state in ['approved', 'delivered', 'returned']"
+                       decoration-danger="custody_state == 'rejected'"/>
             </tree>
         </field>
     </record>

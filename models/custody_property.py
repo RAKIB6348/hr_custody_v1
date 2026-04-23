@@ -147,6 +147,25 @@ class CustodyProperty(models.Model):
         compute='_compute_history_count'
     )
 
+    custody_state = fields.Selection(
+        [
+            ('draft', 'Draft'),
+            ('to_approve', 'Waiting'),
+            ('approved', 'Approved'),
+            ('delivered', 'Delivered'),
+            ('returned', 'Returned'),
+            ('rejected', 'Rejected'),
+        ],
+        string="Custody Status",
+        compute="_compute_custody_state",
+        store=True
+    )
+
+    @api.depends('current_custody_id.state')
+    def _compute_custody_state(self):
+        for rec in self:
+            rec.custody_state = rec.current_custody_id.state or 'draft'
+
     def _compute_history_count(self):
         for rec in self:
             rec.history_count = self.env['hr.custody.transfer'].search_count([
