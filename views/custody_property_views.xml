@@ -20,6 +20,11 @@
                                 type="object"
                                 class="oe_stat_button"
                                 icon="fa-history">
+
+                            <span class="o_stat_value">
+                                <field name="history_count" widget="statinfo" string="History"/>
+                            </span>
+
                             <span class="o_stat_text">
                                 History
                             </span>

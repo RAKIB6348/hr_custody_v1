@@ -142,6 +142,17 @@ class CustodyProperty(models.Model):
         tracking=True
     )
 
+    history_count = fields.Integer(
+        string='History',
+        compute='_compute_history_count'
+    )
+
+    def _compute_history_count(self):
+        for rec in self:
+            rec.history_count = self.env['hr.custody.transfer'].search_count([
+                ('custody_property_id', '=', rec.id)
+            ])
+
     def _get_asset_display_name(self):
         """Build the same display value for Property Name and Asset ID."""
         self.ensure_one()
@@ -269,13 +280,12 @@ class CustodyProperty(models.Model):
             }
         }
 
-
     def action_view_history(self):
         self.ensure_one()
         return {
-            'effect': {
-                'fadeout': 'slow',
-                'message': "Button Are Clicekd By Admin",
-                'type': 'rainbow_man',
-            }
+            'type': 'ir.actions.act_window',
+            'name': 'History',
+            'res_model': 'hr.custody.transfer',
+            'view_mode': 'tree,form',
+            'domain': [('custody_property_id', '=', self.id)],
         }
