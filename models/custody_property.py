@@ -271,4 +271,11 @@ class CustodyProperty(models.Model):
 
 
     def action_view_history(self):
-        print("Button Clicked")
+        self.ensure_one()
+        return {
+            'effect': {
+                'fadeout': 'slow',
+                'message': "Button Are Clicekd By Admin",
+                'type': 'rainbow_man',
+            }
+        }

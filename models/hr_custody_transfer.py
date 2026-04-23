@@ -93,6 +93,12 @@ class HrCustodyTransfer(models.Model):
         readonly=True,
     )
 
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('transfer', 'Transferred'),
+        ('cancel', 'Cancelled'),
+    ], string='Status', default='draft', tracking=True)
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -101,3 +107,12 @@ class HrCustodyTransfer(models.Model):
                     'hr.custody.transfer'
                 ) or 'New'
         return super().create(vals_list)
+
+    def action_transfer(self):
+        self.state = 'transfer'
+
+    def action_cancel(self):
+        self.state = 'cancel'
+
+    def action_reset(self):
+        self.state = 'draft'
