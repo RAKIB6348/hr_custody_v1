@@ -21,7 +21,7 @@
         <!-- Report Custody menu-->
         <menuitem name="Report" id="custody_report_menu"
                   groups="hr.group_hr_manager"
-                  parent="hr_custody_main_menu" sequence="1"/>
+                  parent="hr_custody_main_menu" sequence="10"/>
 
         <menuitem name="Custody Analysis" action="report_custody_action" id="custody_report_menu_custody_analysis"
                   groups="hr.group_hr_manager"

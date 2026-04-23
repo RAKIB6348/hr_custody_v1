@@ -206,8 +206,7 @@
     <menuitem id="hr_custody_main_menu"
               web_icon="hr_custody,static/description/icon.png"
               name="Custody" sequence="20"/>
-    <menuitem id="hr_custody_menu" parent="hr_custody_main_menu"
-              name="Custody Management" sequence="20"/>
+    
     <menuitem action="hr_custody_action" id="hr_custody_request_menu"
               parent="hr_custody.hr_custody_main_menu"
               name="Custody Request" sequence="1"/>

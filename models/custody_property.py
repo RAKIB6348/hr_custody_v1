@@ -29,76 +29,82 @@ class CustodyProperty(models.Model):
     """
     _name = 'custody.property'
     _description = 'Custody Property'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char(string='Property Name', required=True,
+    name = fields.Char(string='Property Name', required=True, tracking=True,
                        help='Enter the name of the custody property')
-    image = fields.Image(string="Image",
+    image = fields.Image(string="Image", tracking=True,
                          help="This field holds the image used for "
                               "this provider, limited to 1024x1024px")
     image_medium = fields.Binary(
-        "Medium-sized image", attachment=True,
+        "Medium-sized image", attachment=True, tracking=True,
         help="Medium-sized image of this provider. It is automatically "
              "resized as a 128x128px image, with aspect ratio preserved. "
              "Use this field in form views or some kanban views.")
     image_small = fields.Binary(
-        "Small-sized image", attachment=True,
+        "Small-sized image", attachment=True, tracking=True,
         help="Small-sized image of this provider. It is automatically "
              "resized as a 64x64px image, with aspect ratio preserved. "
              "Use this field anywhere a small image is required.")
-    desc = fields.Html(string='Description',
+    desc = fields.Html(string='Description', tracking=True,
                        help='A detailed description of the item.')
     company_id = fields.Many2one('res.company', 'Company',
                                  help='The company associated with '
                                       'this record.',
-                                 default=lambda self: self.env.user.company_id)
+                                 default=lambda self: self.env.user.company_id,
+                                 tracking=True)
     brand_id = fields.Many2one(
-        'custody.brand', string='Brand',
+        'custody.brand', string='Brand', tracking=True,
         help='Brand associated with this property.')
     lot_id = fields.Many2one(
         'stock.lot',
         string='Lot/Serial Number',
         domain="[('product_id', '=', product_id), '|', ('company_id', '=', company_id), ('company_id', '=', False)]",
+        tracking=True,
         help='Product lot/serial number used as the asset identifier.')
     asset_id = fields.Char(
-        string='Asset ID',
+        string='Asset ID', tracking=True,
         help='Editable asset identifier shown in reports.')
     asset_model = fields.Char(
-        string='Model',
+        string='Model', tracking=True,
         help='Model number or model name of the asset.')
     specification = fields.Text(
-        string='Specification',
+        string='Specification', tracking=True,
         help='Technical specification shown in fixed asset reports.')
     serial_service_tag = fields.Char(
         string='Serial/Service Tag',
         compute='_compute_serial_service_tag',
         store=True,
+        tracking=True,
         help='Serial/service tag mirrored from the selected lot/serial number.')
     purchase_date = fields.Date(
-        string='Purchase Date',
+        string='Purchase Date', tracking=True,
         help='Purchase date of the asset.')
     vendor_name = fields.Char(
-        string='Vendor Name',
+        string='Vendor Name', tracking=True,
         help='Vendor or supplier name shown in the report.')
     price = fields.Float(
-        string='Price',
+        string='Price', tracking=True,
         help='Purchase price of the asset.')
     purchase_details = fields.Char(
-        string='Purchase Details',
+        string='Purchase Details', tracking=True,
         help='Additional purchase reference or details.')
     received_by = fields.Char(
-        string='Received By',
+        string='Received By', tracking=True,
         help='Person who received the asset.')
     remark = fields.Char(
-        string='Remark',
+        string='Remark', tracking=True,
         help='Additional note printed in the report.')
     property_selection = fields.Selection([('empty', 'No Connection'),
                                            ('product', 'Products')],
                                           default='empty',
                                           string='Property From',
+                                          tracking=True,
                                           help="Select the property")
 
     product_id = fields.Many2one('product.product',
-                                 string='Product', help="Select the Product")
+                                 string='Product', tracking=True,
+                                 help="Select the Product")
     current_custody_id = fields.Many2one(
         'hr.custody',
         string='Current Custody',
@@ -132,7 +138,8 @@ class CustodyProperty(models.Model):
 
     is_in_custody = fields.Boolean(
         string='In Custody',
-        default=False
+        default=False,
+        tracking=True
     )
 
 
