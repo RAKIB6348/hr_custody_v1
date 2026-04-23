@@ -34,13 +34,29 @@
     'live_test_url': 'https://youtu.be/rd62HYzZxFI',
     'depends': ['hr', 'mail', 'hr_employee_updation', 'base', 'stock', 'purchase', 'report_xlsx'],
     'data': [
+
+        # ============================================================
+        # SECURITY
+        # ============================================================
         'security/custody_security.xml',
         'security/ir.model.access.csv',
+
+        # ============================================================
+        # DATA
+        # ============================================================
         'data/custody_sequence_data.xml',
         'data/ir_cron_data.xml',
         'data/mail_custody_notification_data.xml',
+
+        # ============================================================
+        # WIZARDS
+        # ============================================================
         'wizard/property_return_reason_views.xml',
         'wizard/property_return_date_views.xml',
+
+        # ============================================================
+        # VIEWS
+        # ============================================================
         'views/hr_custody_views.xml',
         'views/hr_custody_transfer_views.xml',
         'views/brand_views.xml',
@@ -49,6 +65,10 @@
         'views/product_template_views.xml',
         'views/hr_employee_views.xml',
         'views/res_config_settings_views.xml',
+
+        # ============================================================
+        # REPORTS
+        # ============================================================
         'reports/report_custody_views.xml',
         'reports/fixed_asset_inventory_report.xml',
     ],
