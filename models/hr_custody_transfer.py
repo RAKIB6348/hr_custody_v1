@@ -1,4 +1,5 @@
 from odoo import fields, models, api
+from odoo.exceptions import ValidationError
 
 
 class HrCustodyTransfer(models.Model):
@@ -93,6 +94,11 @@ class HrCustodyTransfer(models.Model):
         readonly=True,
     )
 
+    quantity = fields.Integer(
+        string='Quantity',
+        default=1,
+    )
+
     state = fields.Selection([
         ('draft', 'Draft'),
         ('transfer', 'Transferred'),
@@ -116,3 +122,9 @@ class HrCustodyTransfer(models.Model):
 
     def action_reset(self):
         self.state = 'draft'
+
+    @api.constrains('quantity')
+    def _check_quantity(self):
+        for rec in self:
+            if rec.quantity <= 0:
+                raise ValidationError("Quantity must be greater than 0")

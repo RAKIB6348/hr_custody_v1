@@ -36,6 +36,7 @@
                             <field name="source_location_id" readonly="1"/>
                             <field name="custody_property_id" readonly="1"/>
                             <field name="lot_id" readonly="1"/>
+                            <field name="quantity"/>
                         </group>
                         <group>
                             <field name="employee_to_id"/>
