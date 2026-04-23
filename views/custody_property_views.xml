@@ -10,10 +10,12 @@
                     <button name="action_custody_transfer"
                             string="Transfer"
                             type="object"
-                            class="btn-primary"/>
+                            class="btn-primary"
+                            invisible="custody_state not in ['draft', 'returned']"/>
 
                 </header>
                 <sheet>
+                    <field name="custody_state" invisible="1"/>
 
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_history"
