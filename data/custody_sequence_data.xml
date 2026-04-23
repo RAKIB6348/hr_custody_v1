@@ -9,5 +9,12 @@
             <field eval="4" name="padding"/>
             <field eval="False" name="company_id"/>
         </record>
+        <record id="custody_transfer_sequence_id" model="ir.sequence">
+            <field name="name">Custody Transfer Code</field>
+            <field name="code">hr.custody.transfer</field>
+            <field name="prefix">CT</field>
+            <field eval="4" name="padding"/>
+            <field eval="False" name="company_id"/>
+        </record>
     </data>
 </odoo>

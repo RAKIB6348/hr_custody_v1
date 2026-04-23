@@ -42,6 +42,7 @@
         'wizard/property_return_reason_views.xml',
         'wizard/property_return_date_views.xml',
         'views/hr_custody_views.xml',
+        'views/hr_custody_transfer_views.xml',
         'views/brand_views.xml',
         'views/dashboard_views.xml',
         'views/custody_property_views.xml',

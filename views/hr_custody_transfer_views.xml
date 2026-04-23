@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_custody_transfer_view_form" model="ir.ui.view">
+        <field name="name">hr.custody.transfer.form</field>
+        <field name="model">hr.custody.transfer</field>
+        <field name="arch" type="xml">
+            <form string="Custody Transfer">
+                <sheet>
+                    <h1>
+                        <field name="name" readonly="1" nolabel="1"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="employee_from_id"/>
+                            <field name="company_from_id" readonly="1"/>
+                            <field name="source_location_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="employee_to_id"/>
+                            <field name="company_to_id" readonly="1"/>
+                            <field name="destination_location_id" readonly="1"/>
+                            <field name="transfer_date"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_custody_transfer_view_tree" model="ir.ui.view">
+        <field name="name">hr.custody.transfer.tree</field>
+        <field name="model">hr.custody.transfer</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="employee_from_id"/>
+                <field name="company_from_id"/>
+                <field name="source_location_id"/>
+                <field name="employee_to_id"/>
+                <field name="company_to_id"/>
+                <field name="destination_location_id"/>
+                <field name="transfer_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="hr_custody_transfer_view_search" model="ir.ui.view">
+        <field name="name">hr.custody.transfer.search</field>
+        <field name="model">hr.custody.transfer</field>
+        <field name="arch" type="xml">
+            <search string="Custody Transfer">
+                <field name="name"/>
+                <field name="employee_from_id"/>
+                <field name="employee_to_id"/>
+                <field name="company_from_id"/>
+                <field name="company_to_id"/>
+                <field name="transfer_date"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_custody_transfer_action" model="ir.actions.act_window">
+        <field name="name">Custody Transfer</field>
+        <field name="res_model">hr.custody.transfer</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="hr_custody_transfer_view_search"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to Create a New Record.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="hr_custody_transfer_menu"
+              action="hr_custody_transfer_action"
+              parent="hr_custody.hr_custody_main_menu"
+              name="Custody Transfer"
+              sequence="2"/>
+</odoo>

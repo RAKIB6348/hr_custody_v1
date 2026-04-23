@@ -27,3 +27,4 @@ from . import hr_custody
 from . import hr_employee
 from . import product_template
 from . import res_config_settings
+from . import hr_custody_transfer

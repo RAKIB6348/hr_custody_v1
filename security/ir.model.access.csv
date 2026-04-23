@@ -5,6 +5,9 @@ access_custody_brand_employee,custody.brand.employee,model_custody_brand,base.gr
 access_hr_custody_manager,access.hr.custody.manager,model_hr_custody,hr.group_hr_manager,1,1,1,1
 access_hr_custody_user,access.hr.custody.user,model_hr_custody,hr.group_hr_user,1,1,1,1
 access_hr_custody_employee,hr.custody.employee,model_hr_custody,base.group_user,1,1,1,0
+access_hr_custody_transfer_manager,hr.custody.transfer.manager,model_hr_custody_transfer,hr.group_hr_manager,1,1,1,1
+access_hr_custody_transfer_user,hr.custody.transfer.user,model_hr_custody_transfer,hr.group_hr_user,1,1,1,1
+access_hr_custody_transfer_employee,hr.custody.transfer.employee,model_hr_custody_transfer,base.group_user,1,1,1,0
 access_custody_property_manger,custody.property.manager,model_custody_property,hr.group_hr_manager,1,1,1,1
 access_custody_property_user,custody.property.user,model_custody_property,hr.group_hr_user,1,1,1,1
 access_custody_property_employee,custody.property.employee,model_custody_property,base.group_user,1,0,0,0
