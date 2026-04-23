@@ -58,8 +58,8 @@
         # VIEWS
         # ============================================================
         'views/hr_custody_views.xml',
-        'views/hr_custody_transfer_views.xml',
         'views/brand_views.xml',
+        'views/hr_custody_transfer_views.xml',
         'views/dashboard_views.xml',
         'views/custody_property_views.xml',
         'views/product_template_views.xml',

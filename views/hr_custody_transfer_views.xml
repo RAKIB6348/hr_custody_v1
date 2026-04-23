@@ -47,6 +47,11 @@
                         </group>
                     </group>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
             </form>
         </field>
     </record>
@@ -99,7 +104,7 @@
 
     <menuitem id="hr_custody_transfer_menu"
               action="hr_custody_transfer_action"
-              parent="hr_custody.hr_custody_main_menu"
+              parent="hr_custody.menu_configuration_root"
               name="Custody Transfer"
               sequence="2"/>
 </odoo>
