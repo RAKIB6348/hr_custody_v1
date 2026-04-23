@@ -265,5 +265,6 @@ class CustodyProperty(models.Model):
                 'default_employee_from_id': self.current_employee_id.id,
                 'default_product_id': self.product_id.id,
                 'default_lot_id': self.lot_id.id,
+                'default_custody_property_id': self.id,
             }
         }

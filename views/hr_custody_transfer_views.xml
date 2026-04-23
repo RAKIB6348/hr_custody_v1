@@ -15,7 +15,7 @@
                             <field name="department_from_id" readonly="1"/>
                             <field name="company_from_id" readonly="1"/>
                             <field name="source_location_id" readonly="1"/>
-                            <field name="product_id" readonly="1"/>
+                            <field name="custody_property_id" readonly="1"/>
                             <field name="lot_id" readonly="1"/>
                         </group>
                         <group>
