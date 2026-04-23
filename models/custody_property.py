@@ -268,3 +268,7 @@ class CustodyProperty(models.Model):
                 'default_custody_property_id': self.id,
             }
         }
+
+
+    def action_view_history(self):
+        print("Button Clicked")
